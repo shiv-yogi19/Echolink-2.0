@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>EchoLink — Your Voice. Live. Anywhere.</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-layout="glass" data-theme="dark">
+<div id="splash" aria-hidden="true"><h1>ECHOLINK</h1><p>Your Voice.<br>Live. Anywhere.</p><div class="waves"><i></i><i></i><i></i><i></i><i></i></div><small>Created By Shiv Yogi</small></div>
+
+<main>
+<section id="home" class="screen">
+  <h1>ECHOLINK</h1><p class="tag">Your Voice. Live. Anywhere.</p>
+  <div class="card col">
+    <button id="btnHost" class="primary">🎤 Start Mic &amp; Create Room</button>
+    <button id="btnJoin">🔊 Join Room</button>
+    <button id="openSettings">⚙️ Settings</button>
+  </div>
+  <small class="by">Created By Shiv Yogi</small>
+</section>
+
+<section id="join" class="screen" hidden>
+  <h2>Join a room</h2>
+  <div class="card col">
+    <label>Room code <input id="joinCode" inputmode="numeric" maxlength="7" autocomplete="off" placeholder="000 000"></label>
+    <label>Device name (optional) <input id="devName" maxlength="40"></label>
+    <button id="doJoin" class="primary">Request access</button>
+    <button id="backJoin">Back</button>
+  </div>
+</section>
+
+<section id="host" class="screen" hidden>
+  <header class="bar"><b>ECHOLINK</b><button id="openSettings2" aria-label="Settings">⚙️</button></header>
+  <div class="card center">
+    <div id="micState" class="state">MIC INACTIVE</div>
+    <canvas id="vizCanvas" width="600" height="160" aria-label="Live microphone visualizer"></canvas>
+    <div class="meter" aria-label="Input level"><div id="level"></div></div>
+    <div class="row wrap"><small id="rms">RMS -∞ dB</small><small id="peak">Peak -∞ dB</small><small id="clip" class="clip" hidden>CLIPPING</small></div>
+    <small id="audioInfo"></small>
+  </div>
+  <div class="grid">
+    <div class="card center"><small>👥 CONNECTED</small><strong id="statDevices">0</strong></div>
+    <div class="card center"><small>🔔 PENDING</small><strong id="statPending">0</strong></div>
+  </div>
+  <div class="card center"><small>ROOM</small><strong id="roomCode" class="code">------</strong><small id="roomStatus">OPEN</small>
+    <div class="row"><button id="copy">Copy</button><button id="share">Share</button></div></div>
+  <div class="row wrap">
+    <button id="mute">Mute mic</button><button id="lock">Lock room</button>
+    <button id="regen">New code</button><button id="kickAll">Disconnect all</button><button id="end" class="danger">End session</button>
+  </div>
+  <h3>Devices</h3><ul id="peers" class="peers"></ul>
+</section>
+
+<section id="recv" class="screen" hidden>
+  <h2>ECHOLINK</h2>
+  <div class="card center">
+    <div id="rstatus" class="state" role="status">Connecting…</div><small id="rdiag"></small>
+    <button id="tap" class="primary" hidden>Tap to start audio</button>
+    <label>Volume <input id="vol" type="range" min="0" max="1" step="0.05" value="1"></label>
+    <div class="row wrap"><button id="rmute">Mute</button><button id="full">Fullscreen</button><button id="leave" class="danger">Leave</button></div>
+  </div>
+  <audio id="audio" autoplay playsinline></audio>
+</section>
+</main>
+
+<dialog id="settings"><form method="dialog" class="col">
+  <h2>Settings</h2>
+  <h4>Microphone</h4>
+  <label>Microphone <select id="mic" data-k="mic"></select></label>
+  <label><input type="checkbox" data-k="echo"> Echo cancellation</label>
+  <label><input type="checkbox" data-k="noise"> Noise suppression</label>
+  <label><input type="checkbox" data-k="agc"> Automatic gain control</label>
+  <label>Software gain <input type="range" data-k="gain" min="0.5" max="3" step="0.1"></label>
+  <h4>Audio</h4>
+  <label>Max bitrate <select data-k="bitrate"><option value="32000">32 kbps</option><option value="64000">64 kbps</option><option value="96000">96 kbps</option><option value="128000">128 kbps</option><option value="192000">192 kbps</option><option value="256000">256 kbps</option><option value="320000">320 kbps</option></select></label>
+  <h4>Visualizer</h4>
+  <label>Style <select id="vizStyle" data-k="viz"><option value="bars">Spectrum bars</option><option value="mirror">Mirror spectrum</option><option value="wave">Waveform</option><option value="neon">Neon wave</option><option value="scope">Oscilloscope</option><option value="circle">Circular spectrum</option><option value="radial">Radial wave</option><option value="rings">Audio rings</option><option value="pulse">Pulse</option><option value="tunnel">Tunnel</option><option value="particles">Particles</option></select></label>
+  <label>Sensitivity <input type="range" data-k="sens" min="0.5" max="4" step="0.1"></label>
+  <label>Smoothing <input type="range" data-k="smooth" min="0" max="0.95" step="0.05"></label>
+  <label>Intensity <input type="range" data-k="intensity" min="0.5" max="2" step="0.1"></label>
+  <label>Glow <input type="range" data-k="glow" min="0" max="30" step="1"></label>
+  <label>Density <input type="range" data-k="density" min="8" max="96" step="4"></label>
+  <label>Visualizer FPS <select data-k="fps"><option value="30">30</option><option value="60">60</option><option value="auto">Auto</option></select></label>
+  <label><input type="checkbox" data-k="norm"> Volume normalization (compressor)</label>
+  <label>Latency hint (applies on next session) <select data-k="latency"><option value="interactive">Ultra low</option><option value="balanced">Balanced</option><option value="playback">Quality</option></select></label>
+  <h4>Appearance</h4>
+  <label>Layout <select data-k="layout"><option value="glass">Liquid Glass</option><option value="studio">Audio Studio</option><option value="minimal">Minimal</option></select></label>
+  <label>Theme <select data-k="theme"><option value="dark">Dark</option><option value="amoled">AMOLED</option></select></label>
+  <label>Glass blur <input type="range" data-k="blur" min="0" max="40" step="2"></label>
+  <label><input type="checkbox" data-k="anim"> Animations</label>
+  <label><input type="checkbox" data-k="reduce"> Reduce motion</label>
+  <label><input type="checkbox" data-k="tv"> TV mode (large UI)</label>
+  <h4>Room &amp; security</h4>
+  <label><input type="checkbox" data-k="approval"> Require host approval</label>
+  <label>Max receivers <input type="number" data-k="max" min="1" max="50"></label>
+  <button id="closeSettings" class="primary" value="close">Done</button>
+</form></dialog>
+<div id="toasts" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>

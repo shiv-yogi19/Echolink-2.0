@@ -1,0 +1,58 @@
+:root{--bg:#0b1020;--fg:#eaf2ff;--ac:#5ee1ff;--ok:#4ade80;--er:#f87171;--card:rgba(255,255,255,.07)}
+[data-theme=amoled]{--bg:#000}
+*{box-sizing:border-box}
+html,body{margin:0;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--fg);font:16px system-ui,sans-serif;min-height:100vh}
+body.tv{font-size:24px}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1,h2,h3,h4{margin:.5em 0}.tag,.by{opacity:.7;text-align:center;display:block}
+button,input,select{font:inherit;color:inherit;min-height:44px;border-radius:12px;border:1px solid #fff3;background:#ffffff14;padding:8px 14px}
+button{cursor:pointer;transition:transform .15s,background .2s}
+button:hover{background:#ffffff26}button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.primary{background:var(--ac);color:#04121a;border:0;font-weight:700}.danger{border-color:var(--er);color:var(--er)}
+.card{background:var(--card);border-radius:20px;padding:16px;margin:12px 0;animation:in .4s both}
+.col{display:flex;flex-direction:column;gap:12px}.center{text-align:center}
+.row{display:flex;gap:8px;justify-content:center}.wrap{flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid .card{margin:0}
+.bar{display:flex;justify-content:space-between;align-items:center}
+strong{display:block;font-size:2rem}.code{letter-spacing:.15em}
+label{display:flex;flex-direction:column;gap:4px}label:has(input[type=checkbox]){flex-direction:row;align-items:center;gap:8px}
+input[type=checkbox]{width:24px;min-height:24px}
+canvas{width:100%;height:120px}
+.state{font-weight:700;letter-spacing:.1em}
+.meter{height:8px;background:#fff2;border-radius:4px;overflow:hidden}.meter div{height:100%;width:0;background:var(--ok);transition:width .08s}
+.peers{list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.peer{background:var(--card);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;border-left:4px solid #888}
+.peer.connected{border-color:var(--ok)}.peer.connecting,.peer.pending{border-color:var(--ac);animation:pulse 1.6s infinite}
+.peer.failed,.peer.disconnected{border-color:var(--er)}
+.peer button{margin-right:6px}
+dialog{background:#101830;color:var(--fg);border:1px solid #fff3;border-radius:20px;max-width:min(92vw,480px);max-height:90vh}
+dialog::backdrop{background:#000a}
+#toasts{position:fixed;left:8px;right:8px;bottom:12px;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#1c2748;border-radius:12px;padding:10px 16px;animation:in .3s both}.toast.err{border-left:4px solid var(--er)}.toast.ok{border-left:4px solid var(--ok)}.toast.info{border-left:4px solid var(--ac)}
+#splash{position:fixed;inset:0;z-index:9;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:out .5s 2.4s forwards}
+#splash h1{letter-spacing:.3em;animation:in 1s both}#splash p{animation:in 1s .5s both}#splash small{animation:in 1s 1.3s both}
+.waves{display:flex;gap:6px;height:40px;align-items:center}.waves i{width:6px;height:100%;background:var(--ac);border-radius:3px;animation:wave 1s infinite ease-in-out}
+.waves i:nth-child(2){animation-delay:.1s}.waves i:nth-child(3){animation-delay:.2s}.waves i:nth-child(4){animation-delay:.3s}.waves i:nth-child(5){animation-delay:.4s}
+@keyframes in{from{opacity:0;transform:translateY(12px)}}
+@keyframes out{to{opacity:0;visibility:hidden}}
+@keyframes wave{50%{transform:scaleY(.25)}}
+@keyframes pulse{50%{box-shadow:0 0 14px #5ee1ff66}}
+/* Layouts: each changes structure, not just color */
+[data-layout=glass]{background:radial-gradient(circle at 15% 10%,#6d4aff66,transparent 50%),radial-gradient(circle at 85% 90%,#0ea5e966,transparent 50%),var(--bg)}
+[data-layout=glass] .card,[data-layout=glass] .peer{backdrop-filter:blur(var(--blur,18px));border:1px solid #fff3;box-shadow:0 8px 32px #0006}
+[data-layout=studio]{font-family:ui-monospace,Menlo,monospace}
+[data-layout=studio] main{max-width:1000px}
+[data-layout=studio] #host{display:grid;grid-template-columns:2fr 1fr;gap:0 16px}
+[data-layout=studio] #host>.bar,[data-layout=studio] #host>h3,[data-layout=studio] #host>.peers{grid-column:1/-1}
+[data-layout=studio] .card,[data-layout=studio] .peer{border-radius:4px;border:1px solid #2f3b66;background:#0e1530}
+[data-layout=studio] canvas{height:200px}
+[data-layout=minimal] .card,[data-layout=minimal] .peer{background:none;border:1px solid #fff2;animation:none}
+[data-layout=minimal] canvas,[data-layout=minimal] #splash{display:none}
+@media (max-width:700px){[data-layout=studio] #host{display:block}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.peer.reconnecting{border-color:#fbbf24;animation:pulse 1.2s infinite}.clip{color:var(--er);font-weight:700}
+body.noanim *,body.noanim *::before{animation:none!important;transition:none!important}
+@media (orientation:landscape) and (max-height:500px){main{max-width:900px}#host .grid{grid-template-columns:repeat(2,1fr)}}
