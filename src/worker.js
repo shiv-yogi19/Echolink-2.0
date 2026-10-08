@@ -25,7 +25,8 @@ export class Room {
   constructor() {
     this.host = null;
     this.peers = new Map(); // id -> {ws, info, deviceId, status: 'pending'|'approved'}
-    this.blocked = new Set(); // blocked deviceIds, lives as long as the host session
+    this.blocked = new Set();
+    this.trusted = new Set(); // deviceIds already approved this session: they rejoin without a new prompt // blocked deviceIds, lives as long as the host session
     this.cfg = { approval: true, locked: false, max: 10 };
   }
 
@@ -57,12 +58,13 @@ export class Room {
       this.peers.forEach((p) => { this.out(p.ws, { type: 'host-left' }); p.ws.close(1000); });
       this.peers.clear();
       this.blocked.clear();
+      this.trusted.clear();
     });
   }
 
   onHost(m) {
     if (!m) return;
-    const p = this.peers.get(m.id);
+    const p = this.peers.get(m.id || m.to); // host signals address the receiver with `to`
     switch (m.type) {
       case 'config':
         this.cfg = { approval: m.approval !== false, locked: !!m.locked, max: Math.min(50, Math.max(1, (m.max | 0) || 10)) };
@@ -70,7 +72,7 @@ export class Room {
       case 'approve': if (p && p.status === 'pending') this.approve(m.id); break;
       case 'deny': case 'kick': case 'block':
         if (!p) break;
-        if (m.type === 'block') this.blocked.add(p.deviceId);
+        if (m.type === 'block') { this.blocked.add(p.deviceId); this.trusted.delete(p.deviceId); }
         this.out(p.ws, { type: m.type === 'deny' ? 'denied' : m.type === 'block' ? 'blocked' : 'kicked' });
         p.ws.close(1000);
         this.peers.delete(m.id);
@@ -86,6 +88,7 @@ export class Room {
   approve(id) {
     const p = this.peers.get(id);
     p.status = 'approved';
+    if (p.deviceId) this.trusted.add(p.deviceId);
     this.out(p.ws, { type: 'approved' });
     this.out(this.host, { type: 'approved', id, info: p.info });
   }
@@ -106,7 +109,7 @@ export class Room {
         if (this.peers.size >= this.cfg.max) return fail('full');
         peer = { ws, info, deviceId, status: 'pending' };
         this.peers.set(id, peer);
-        if (this.cfg.approval) { this.out(ws, { type: 'waiting' }); this.out(this.host, { type: 'request', id, info }); }
+        if (this.cfg.approval && !this.trusted.has(deviceId)) { this.out(ws, { type: 'waiting' }); this.out(this.host, { type: 'request', id, info }); }
         else this.approve(id);
       } else if (m.type === 'signal' && peer && peer.status === 'approved') {
         this.out(this.host, { type: 'signal', from: id, data: m.data });
